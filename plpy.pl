@@ -1,27 +1,44 @@
 #!/usr/bin/perl -w
 
-# written by Paul Walters z5077446 for COMP2041/9041 assignment 
-# http://cgi.cse.unsw.edu.au/~cs2041/assignments/plpy/
-
+# written by Paul Walters z5077446 Sep 2016
+my $indent = 0;
 while ($line = <>) {
-    if ($line =~ /^#!/ && $. == 1) {
-    
-        # translate #! line 
+    	if ($line =~ /^#!/ && $. == 1)
+	{
+        	# translate #! line 
         
-        print "#!/usr/local/bin/python3.5 -u";
-    } elsif ($line =~ /^\s*#/ || $line =~ /^\s*$/) {
-    
-        # Blank & comment lines can be passed unchanged
+        	print "#!/usr/local/bin/python3.5 -u";
+    	}
+	elsif ($line =~ /^\s*#/ || $line =~ /^\s*$/)
+	{
+        	# Blank & comment lines can be passed unchanged
         
-        print $line;
-    } elsif ($line =~ /^\s*print\s*"(.*)\\n"[\s;]*$/) {
-        # Python's print adds a new-line character by default
-        # so we need to delete it from the Perl print statement
+        	print $line;
+    	}
+	elsif ($line =~ /^\s*print\s*"(.*)\\n"[\s;]*$/)
+	{
+		my $string = $1;
+		my @variables = ($string =~ /[\$\@\%](\w+)/g);
+		$string =~ s/[\$\@\%](\w+)/\$s/g;
+
+		if (@variables)
+		{
+			print "print(\"$string\" \% (".join(",",@variables)."))\n";
+		}
+		else
+		{
+			print "print(\"$string\")\n";
+		}
+	}
+	elsif ($line =~ /^\.*\$\w+/gi)
+	{
+		$line =~ s/(\$|;|(\{\{)|(\}\}))//g;
+		print "$line\n";
+	}
+	else
+	{
+        	# Lines we can't translate are turned into comments
         
-        print "print(\"$1\")\n";
-    } else {
-        # Lines we can't translate are turned into comments
-        
-        print "#$line\n";
-    }
+        	print "#$line\n";
+	}
 }
