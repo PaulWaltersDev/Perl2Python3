@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 # written by Paul Walters z5077446 Sep 2016
-my $indent = 0;
+my $indent = 0; #adding global indent variable
 while ($line = <>) {
     	if ($line =~ /^#!/ && $. == 1)
 	{
