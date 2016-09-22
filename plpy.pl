@@ -1,8 +1,26 @@
 #!/usr/bin/perl -w
 
+# Hash linking translation functions to regex keys used in searches
+
+use strict;
+use warnings;
+use diagnostics;
+
 # written by Paul Walters z5077446 Sep 2016
 my $indent = 0; #adding global indent variable
-while ($line = <>) {
+while (my $line = <>) {
+	
+	#replace spaceship operator with cmp
+	
+	$line =~ s/(\$\w+)\s*<=>\s*(\$\w+)/cmp($1,$2)/g;
+	
+	# replace logical operators || && !
+	
+	$line =~ s/&&/ and /g;
+	$line =~ s/\|\|/ or /g;
+	$line =~ s/\!(.*)(\s*(\)|foreach|for|{|;))/ not\($1\) $2/g;
+	
+	
     	if ($line =~ /^#!/ && $. == 1)
 	{
         	# translate #! line 
@@ -30,8 +48,12 @@ while ($line = <>) {
 			print "print(\"$string\")\n";
 		}
 	}
-	elsif ($line =~ /^\s*print\s*(\$([a-zA-Z][a-zA-Z0-9_]*)\s*([\*\/\+\-]))\s*"(.*)(\\n)+"[\s;]*$/)
+	elsif ($line =~ /^\s*print.*[^"][\$\@\%]([a-zA-Z0-9_]+)/)
 	{
+		my @variables_and_ops = ($line =~ /[\$\@\%]([a-zA-Z0-9_]+\s*[\+\-\/\*]*)/g);
+		#$1ine =~ s/\$[a-zA-Z0-9_]+/\$s/g;
+		
+		print "print(".join(" ",@variables_and_ops).")\n";
 	}
 	elsif ($line =~ /^\.*\$\w+/gi)
 	{
