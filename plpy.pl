@@ -30,6 +30,9 @@ while ($line = <>) {
 			print "print(\"$string\")\n";
 		}
 	}
+	elsif ($line =~ /^\s*print\s*(\$([a-zA-Z][a-zA-Z0-9_]*)\s*([\*\/\+\-]))\s*"(.*)(\\n)+"[\s;]*$/)
+	{
+	}
 	elsif ($line =~ /^\.*\$\w+/gi)
 	{
 		$line =~ s/(\$|;|(\{\{)|(\}\}))//g;
