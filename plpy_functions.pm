@@ -13,6 +13,29 @@ my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
 my %shebang_header = {};
 my @python_text = ();
 
+my %replace_functions = {
+                            'and'             => \&replace_and_operator,
+                            'or'              => \&replace_or_operator,
+                            'not'             => \&replace_not_operator,
+                            'spaceship'       => \&replace_spaceship_operator,
+                            'range'           => \&replace_range_operator,
+                            'next'            => \&replace_next,
+                            'last'            => \&replace_last,
+                            'chomp'           => \&replace_chomp,
+                            'split'           => \&replace_split,
+                            'join'            => \&replace_join,
+                            'increments'      => \&replace_increments,
+                            'if'              => \&replace_if,
+                            'foreach'         => \&replace_foreach,
+                            'for'             => \&replace_for,
+                            'while'           => \&replace_while,
+                            'naked_opening_closing_bracket' => \&replace_naked_opening_closing_bracket,
+                            'comment'         => \&leave_comment,
+                            'print'           => \&translate_print_statements,
+                            'variable'        => \&translate_variable,
+                            'untranslatable'  => \&translate_untranslatable_as_comments
+                          };
+
 sub new
 {
   my $class = shift;
