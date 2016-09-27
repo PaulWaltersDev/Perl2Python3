@@ -6,6 +6,13 @@ use strict;
 use warnings;
 use diagnostics;
 
+my $indent = 0; #adding global indent variable
+my @last_nested = ();	#lists most recent nesting
+my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
+
+my %shebang_header = {};
+my @python_text = ();
+
 sub new
 {
   my $class = shift;
@@ -100,10 +107,31 @@ sub replace_if
   return $line;
 }
 
-sub replace_closing_bracket
+sub replace_foreach
 {
   my ($line) = @_;
-  $line =~ s/\s*\}//gi;
+  $line =~ s/foreach\s*(.*)\s*\((.*)\)\s*\{*;*/for $1 \($2\):/gi;
+  return $line;
+}
+
+sub replace_for
+{
+  my ($line) = @_;
+  $line =~ s/for\s*\((.*)\s*=\s*(.*);(.*)\s*[>=<]+\s*(.*);(.*)++\)\s*\{*;*/for $1 in range\($2,$3\):/gi;
+  return $line;
+}
+
+sub replace_while
+{
+  my ($line) = @_;
+  $line =~ s/while\s*\((.*)\)\s*\{*;*/while $1:/gi;
+  return $line;
+}
+
+sub replace_naked_opening_closing_bracket
+{
+  my ($line) = @_;
+  $line =~ s/^\s*[\{\}]&//gi;
   return $line;
 }
 
@@ -168,8 +196,14 @@ sub translate_untranslatable_as_comments
   return "#$line";
 }
 
+sub recursive_parse
+{
+  my ($line) = @_;
 
 
+
+
+}
 
 
 
