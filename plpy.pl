@@ -9,6 +9,7 @@ use diagnostics;
 use FindBin;
 use lib "$FindBin::Bin";
 use plpy_functions;
+use plpy_terminals;
 # written by Paul Walters z5077446 Sep 2016
 my $indent = 0; #adding global indent variable
 my @last_nested = ();	#lists most recent nesting
@@ -17,7 +18,22 @@ my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
 my @shebang_header = ();
 my @python_text = ();
 
+print plpy_terminals::terminals_variable('$hello')."\n";
+print plpy_terminals::terminals_variable('@myhello')."\n";
+print plpy_terminals::terminals_variable('%myhello')."\n";
+print plpy_terminals::terminals_whitespace("   ")."\n";
+print plpy_terminals::terminals_or('||')."\n";
+print plpy_terminals::terminals_and('&&')."\n";
+print plpy_terminals::terminals_arithmetic_operator('+')."\n";
+print plpy_terminals::terminals_end_semicolon('}')."\n";
+print plpy_terminals::terminals_next('next')."\n";
+print plpy_terminals::terminals_last('last')."\n";
+print plpy_terminals::terminals_last(';')."\n";
+
 while (my $line = <>) {
+
+	chomp($line);
+
 
 	#my $plpy_functions = plpy_functions->new();
 

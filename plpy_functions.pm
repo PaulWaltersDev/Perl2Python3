@@ -2,7 +2,7 @@
 
 package plpy_functions;
 
-use strict;
+#use strict;
 use warnings;
 use diagnostics;
 
@@ -10,10 +10,11 @@ my $indent = 0; #adding global indent variable
 my @last_nested = ();	#lists most recent nesting
 my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
 
-my %shebang_header = {};
+#my %shebang_header = {};
 my @python_text = ();
 
-my %replace_functions = {
+# Dispatch Table containing all translation functions
+local %replace_functions = (
                             'and'             => \&replace_and_operator,
                             'or'              => \&replace_or_operator,
                             'not'             => \&replace_not_operator,
@@ -26,7 +27,7 @@ my %replace_functions = {
                             'join'            => \&replace_join,
                             'increments'      => \&replace_increments,
                             'if'              => \&replace_if,
-                            'foreach'         => \&replace_foreach,
+#                            'foreach'         => \&replace_forch,
                             'for'             => \&replace_for,
                             'while'           => \&replace_while,
                             'naked_opening_closing_bracket' => \&replace_naked_opening_closing_bracket,
@@ -34,7 +35,7 @@ my %replace_functions = {
                             'print'           => \&translate_print_statements,
                             'variable'        => \&translate_variable,
                             'untranslatable'  => \&translate_untranslatable_as_comments
-                          };
+                          );
 
 sub new
 {
@@ -68,7 +69,7 @@ sub replace_not_operator
 sub replace_spaceship_operator
 {
   my ($line) = @_;
-  $line =~ s/(\$\w+)\s*<=>\s*(\$\w+)/cmp($1,$2)/g;
+  $line =~ s/(\$\w+)\s*<=>\s*(\$\w+)/\($1 > \$2) \- \($1 < $2\)/g;
   return $line;
 }
 
@@ -123,6 +124,13 @@ sub replace_increments
   return $line;
 }
 
+sub replace_variable
+{
+  my ($line) = @_;
+  $line =~ s/[\$\@\%]([a-zA-z0-9]+)/$1/g;
+  return $line;
+}
+
 sub replace_if
 {
   my ($line) = @_;
@@ -130,19 +138,36 @@ sub replace_if
   return $line;
 }
 
-sub replace_foreach
+sub replace_stdin
 {
   my ($line) = @_;
-  $line =~ s/foreach\s*(.*)\s*\((.*)\)\s*\{*;*/for $1 \($2\):/gi;
+  if(($line) !~ /<STDIN>/ || ($line) !~ /<>/)
+  {
+    return $line;
+  }
+
+  $shebang_header{'sys'} = 'import sys';
+
+  if($line =~ /while\s\((.*)=\s*<STDIN>\)/gi)
+  {
+    return "for $1 in open(sys.stdin):";
+  }
   return $line;
 }
 
-sub replace_for
+sub replace_foreach
 {
-  my ($line) = @_;
-  $line =~ s/for\s*\((.*)\s*=\s*(.*);(.*)\s*[>=<]+\s*(.*);(.*)++\)\s*\{*;*/for $1 in range\($2,$3\):/gi;
-  return $line;
+    my ($line) = @_;
+    $line =~ s/foreach\s*(.*)\s*\((.*)\)\s*\{*;*/for $1 \($2\):/gi;
+    return $line;
 }
+
+#sub replace_for
+#{
+#  my ($line) = @_;
+#  $line =~ s/for\s*\((.*)\s*=\s*(.*);(.*)\s*[>=<]+\s*(.*);(.*)++\)\s*\{*;*/for $1 in range\($2,$3\):/gi;
+#  return $line;
+#}
 
 sub replace_while
 {
@@ -223,9 +248,11 @@ sub recursive_parse
 {
   my ($line) = @_;
 
-
-
-
+  # Attribution: See http://stackoverflow.com/questions/1915616/how-can-i-elegantly-call-a-perl-subroutine-whose-name-is-held-in-a-variable
+  foreach $function (sort keys %replace_functions)
+  {
+    $line = $replace_functions{$function}->($line);
+  }
 }
 
 
