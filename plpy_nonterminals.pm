@@ -18,15 +18,29 @@ use lib "$FindBin::Bin";
 use plpy_terminals;
 use plpy_nonterminals;
 
-sub nonterminals_arith_exp
+sub nonterminals_comp_exp
 {
+  #print "hello_non_terminals comp_exp\n";
   my ($line) = @_;
-  if (my @items = $line =~ /^((^\s*)+\s*([\+\*\/-])\s*)+$/)
+  if (my @items = $line =~ /^(.+)(==|<|>|!=|>=|<=)(.+)$/)
   {
     print "line = $line\n";
     print "items = @items\n";
-    #my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
-    #return "@output";
+    my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
+    return "@output";
+  }
+  return $line;
+}
+
+sub nonterminals_arith_exp
+{
+  my ($line) = @_;
+  if (my @items = $line =~ /^([^\s]+)\s*([\+\*\/-\^])(.+)$/)
+  {
+    #print "line = $line\n";
+    #print "items = ".join(',',@items)."\n";
+    my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
+    return join('',@output);
   }
   return $line;
 
@@ -37,7 +51,7 @@ sub nonterminals_paranthesis
   my ($line) = @_;
   if ($line =~ /^\((.*)\)$/)
   {
-    print "line 1 = $1\n";
+    #print "line 1 = $1\n";
     my $trans = plpy_engine::iterate_trans_functions($1);
 
     #print "trans = $trans\n";
@@ -49,7 +63,7 @@ sub nonterminals_paranthesis
 sub nonterminals_not
 {
   my ($line) = @_;
-  if ($line =~ /^!(.*)$/)
+  if (($line =~ /^!(.*)$/) && ($line !~ /^(!=|!!)$/))
   {
     my $trans = plpy_engine::iterate_trans_functions($1);
     #print $line."\n";
@@ -69,11 +83,45 @@ sub nonterminals_chomp
   return $line;
 }
 
+sub nonterminals_if_elsif_else
+{
+  my ($line) = @_;
+  if ($line =~ /^if\((.*)\){?$/)
+  {
+      $indent++;
+      return "if(".plpy_engine::iterate_trans_functions($1)."):";
+  }
+  elsif ($line =~ /^elsif\((.*)\){?$/)
+  {
+      return "else if(".plpy_engine::iterate_trans_functions($1)."):";
+  }
+  elsif ($line =~ /^else{?$/)
+  {
+      return "else:";
+  }
+  return $line;
+}
+
+sub nonterminals_while
+{
+  my ($line) = @_;
+  #print "line = $line\n";
+  if ($line =~ /^while\s*\((.*)\)\s*{?$/)
+  {
+    print "while = $1\n";
+    $indent++;
+    return "while(".plpy_engine::iterate_trans_functions($1)."):";
+  }
+  return $line;
+}
+
+
 sub nonterminals_spaceship
 {
   my ($line) = @_;
   if ($line =~ /^(.*)\s*<=>\s*(.*)$/)
   {
+    #print "spaceship= ".$1." ".$2."\n";
     my ($a, $b) = map {plpy_engine::iterate_trans_functions($_)} ($1,$2);
     return "($a > $b) - ($a < $b)";
   }

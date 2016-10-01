@@ -62,6 +62,13 @@ sub terminals_arithmetic_operator
   return $line;
 }
 
+sub terminals_comp_operator
+{
+  my ($line) = @_;
+  return $1 if ($line =~ /^(==|<|>|!=|>=|<=)$/);
+  return $line;
+}
+
 sub terminals_end_semicolon
 {
   my ($line) = @_;

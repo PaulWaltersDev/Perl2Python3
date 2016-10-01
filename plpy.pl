@@ -20,29 +20,38 @@ my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
 my @shebang_header = ();
 my @python_text = ();
 
-print plpy_engine::iterate_trans_functions('$hello')."\n";
-print plpy_engine::iterate_trans_functions('@myhello')."\n";
-print plpy_engine::iterate_trans_functions('%myhello')."\n";
-print plpy_engine::iterate_trans_functions('78450067')."\n";
-print plpy_engine::iterate_trans_functions('-756')."\n";
-print plpy_engine::iterate_trans_functions('54.67')."\n";
-print plpy_engine::iterate_trans_functions('-45.67')."\n";
-print plpy_engine::iterate_trans_functions('679.67')."\n";
-print plpy_engine::iterate_trans_functions('-.04754')."\n";
-print plpy_engine::iterate_trans_functions("   ")."\n";
-print plpy_engine::iterate_trans_functions('||')."\n";
-print plpy_engine::iterate_trans_functions('&&')."\n";
-print plpy_engine::iterate_trans_functions('+')."\n";
-print plpy_engine::iterate_trans_functions('}')."\n";
-print plpy_engine::iterate_trans_functions('next')."\n";
-print plpy_engine::iterate_trans_functions('last')."\n";
-print plpy_engine::iterate_trans_functions(';')."\n";
-
-print plpy_engine::iterate_trans_functions('chomp($hello)')."\n";
-print plpy_engine::iterate_trans_functions('$left <=> $right')."\n";
-print plpy_engine::iterate_trans_functions('!($test)')."\n";
-print plpy_engine::iterate_trans_functions('($b)')."\n";
-print plpy_engine::iterate_trans_functions('$a + 3 + (6 / 2)')."\n";
+#print plpy_engine::iterate_trans_functions('$hello')."\n";
+#print plpy_engine::iterate_trans_functions('@myhello')."\n";
+#print plpy_engine::iterate_trans_functions('%myhello')."\n";
+#print plpy_engine::iterate_trans_functions('78450067')."\n";
+#print plpy_engine::iterate_trans_functions('-756')."\n";
+#print plpy_engine::iterate_trans_functions('54.67')."\n";
+#print plpy_engine::iterate_trans_functions('-45.67')."\n";
+#print plpy_engine::iterate_trans_functions('679.67')."\n";
+#print plpy_engine::iterate_trans_functions('-.04754')."\n";
+#print plpy_engine::iterate_trans_functions("   ")."\n";
+#print plpy_engine::iterate_trans_functions('||')."\n";
+#print plpy_engine::iterate_trans_functions('&&')."\n";
+#print plpy_engine::iterate_trans_functions('+')."\n";
+#print plpy_engine::iterate_trans_functions('}')."\n";
+#print plpy_engine::iterate_trans_functions('next')."\n";
+#print plpy_engine::iterate_trans_functions('last')."\n";
+#print plpy_engine::iterate_trans_functions(';')."\n";
+#print plpy_engine::iterate_trans_functions('==')."\n";
+#print plpy_engine::iterate_trans_functions('!=')."\n";
+#print plpy_engine::iterate_trans_functions('!!')."\n";
+#print plpy_engine::iterate_trans_functions('chomp($hello)')."\n";
+#print plpy_engine::iterate_trans_functions('$left <=> $right')."\n";
+#print plpy_engine::iterate_trans_functions('!($test)')."\n";
+#print plpy_engine::iterate_trans_functions('($b)')."\n";
+#print plpy_engine::iterate_trans_functions('$temp == 6.5')."\n";
+#print plpy_engine::iterate_trans_functions('$a + 3 + (6 / 2)')."\n";
+#print plpy_engine::iterate_trans_functions('4 + 12')."\n";
+#print plpy_engine::iterate_trans_functions('$a + x != 3 + chomp($r) + (12 / 2) = 12')."\n";
+print plpy_engine::iterate_trans_functions('if($x != 3){')."\n";
+print plpy_engine::iterate_trans_functions('elsif(chomp($s))')."\n";
+print plpy_engine::iterate_trans_functions('else{')."\n";
+print plpy_engine::iterate_trans_functions('while(chomp($x) + 4 = 3){')."\n";
 
 while (my $line = <>) {
 
