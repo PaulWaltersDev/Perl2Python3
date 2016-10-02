@@ -69,6 +69,37 @@ sub terminals_bitwise_operator
   return $line;
 }
 
+sub terminals_stringarith_exp
+{
+  my ($line) = @_;
+  if ($line eq ".")
+  {
+    return "+";
+  }
+  elsif ($line eq ".=")
+  {
+    return "+="
+  }
+  elsif ($line eq "eq")
+  {
+    return "=="
+  }
+  elsif ($line eq "ne")
+  {
+    return "!="
+  }
+  elsif ($line eq "lt")
+  {
+    return "<"
+  }
+  elsif ($line eq "gt")
+  {
+    return ">"
+  }
+  return $line;
+}
+
+
 sub terminals_comp_operator
 {
   my ($line) = @_;

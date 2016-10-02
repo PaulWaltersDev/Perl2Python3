@@ -9,8 +9,8 @@ use diagnostics;
 my @last_nested = ();	#lists most recent nesting
 my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
 
-local %shebang_header;
-my @python_text = ();
+local $implied_vars_flag = 0;
+local %filehandles;
 
 use FindBin;
 use lib "$FindBin::Bin";
@@ -67,8 +67,134 @@ sub misc_naked_opening_closing_bracket
   if ($line =~ /^}$/)
   {
     reduce_indent();
+    return "";
   }
 
+  return $line;
+}
+
+sub misc_stdin
+{
+  my ($line) = @_;
+  if ($line =~ /^<STDIN>$/i)
+  {
+    add_header("import sys");
+    return 'sys.stdin.readline()';
+  }
+
+  return $line;
+}
+
+sub misc_argv_list
+{
+  my ($line) = @_;
+  if ($line =~ /^@ARGV$/i)
+  {
+    add_header("import sys");
+    return 'sys.argv[1:]';
+  }
+
+  return $line;
+}
+
+sub misc_exit
+{
+  my ($line) = @_;
+  if ($line =~ /^$exit$/i)
+  {
+    add_header("import sys");
+    return 'sys.exit()';
+  }
+
+  return $line;
+}
+
+sub misc_double_brackets
+{
+  my ($line) = @_;
+  my $filevariable;
+  if ($line =~ /^while\s*\((.*)\s*=\s*<>\s*\)\s*{?$/)
+  {
+    add_indent();
+    add_header("import fileinput");
+    $filevariable = plpy_engine::iterate_trans_functions($1);
+    return "for $filevariable in fileinput.input():";
+  }
+  elsif ($line =~ /^while\s*\(\s*<>\s*\)\s*{?$/)
+  {
+    $implied_vars_flag = 1;
+    $filevariable = "temp";
+    return "for $filevariable in fileinput.input():";
+  }
+
+  return $line;
+}
+
+sub non_terminals_regex
+{
+  my ($line) = @_;
+  my $filevariable;
+  if ($line =~ m{//})
+  {
+
+  }
+  elsif ($line =~ /^while\s*\(\s*<>\s*\)\s*{?$/)
+  {
+
+  }
+
+  return $line;
+}
+
+sub nonterminals_split
+{
+  #http://perlmaven.com/perl-split
+  #https://www.tutorialspoint.com/python3/string_split.htm
+  my ($line) = @_;
+
+  #http://www.perlfect.com/articles/regex.shtml
+  if ($line =~ m{^split\s*/(.*)/\s*,(.+),?(.+)?$})
+  {
+    $line =~ s/^split\s*//g;
+    $line =~ s/\///g;
+    print "line = $line\n";
+    my ($a, $b, $c) = split /,/, $line;
+    $a =~ s\['"]\\g;
+    if(defined $c)
+    {
+      ($b,$c) = map {plpy_engine::iterate_trans_functions($_)} ($b,$c);
+      return "$b.split('$a',$c)";
+    }
+    else
+    {
+      $b = plpy_engine::iterate_trans_functions($b);
+      return "$b.split('$a')";
+    }
+  }
+
+  return $line;
+}
+
+
+sub nonterminals_join
+{
+  my ($line) = @_;
+  if ($line =~ /^join\(['"](.*)['"],(.*)\)$/)
+  {
+    return "\"$1\".join(".plpy_engine::iterate_trans_functions($2).")";
+  }
+
+  return $line;
+}
+
+sub nonterminals_variable_assignment
+{
+  my ($line) = @_;
+  if (@items = $line =~ /^(my|local|state)?([^=]+)=([^;]+);?$/)
+  {
+    my ($a,$b) = map {plpy_engine::iterate_trans_functions($_)} ($2,$3);
+    return "$a = $b";
+  }
   return $line;
 }
 
@@ -90,6 +216,28 @@ sub nonterminals_bitwise_exp
 {
   my ($line) = @_;
   if (my @items = $line =~ /^(.+)(&|\||~|\^|>>|<<)(.+)$/)
+  {
+    my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
+    return join('',@output);
+  }
+  return $line;
+}
+
+sub nonterminals_stringarith_exp
+{
+  my ($line) = @_;
+  if (my @items = $line =~ /^(.+)(\.|.=)(.+)$/)
+  {
+    my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
+    return join('',@output);
+  }
+  return $line;
+}
+
+sub nonterminals_string_equiv_exp
+{
+  my ($line) = @_;
+  if (my @items = $line =~ /^(.+)\s+(eq|ne|lt|gt)\s+(.+)$/)
   {
     my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
     return join('',@output);
@@ -144,7 +292,8 @@ sub nonterminals_chomp
   my ($line) = @_;
   if ($line =~ /^chomp\s*\(+(.*)\)+$/)
   {
-      return plpy_engine::iterate_trans_functions($1).".rstrip('\\n')";
+    my $string = plpy_engine::iterate_trans_functions($1);
+    return "$string = $string.rstrip()";
   }
   return $line;
 }
@@ -152,16 +301,16 @@ sub nonterminals_chomp
 sub nonterminals_if_elsif_else
 {
   my ($line) = @_;
-  if ($line =~ /^if\((.*)\){?$/)
+  if ($line =~ /^if\s*\((.*)\)\s*{?$/)
   {
       add_indent();
       return "if ".plpy_engine::iterate_trans_functions($1).":";
   }
-  elsif ($line =~ /^elsif\((.*)\){?$/)
+  elsif ($line =~ /^elsif\s*\((.*)\)\s*{?$/)
   {
       return "else if ".plpy_engine::iterate_trans_functions($1).":";
   }
-  elsif ($line =~ /^else{?$/)
+  elsif ($line =~ /^else\s*{?$/)
   {
       return "else:";
   }
@@ -198,7 +347,7 @@ sub nonterminals_for
   {
     add_indent();
     my ($a, $b, $c) = map {plpy_engine::iterate_trans_functions($_)} ($1,$2,$4);
-    return "for $a in range($b:$c):";
+    return "for $a in range($b:".(1+$c)."):";
   }
   elsif ($line =~ /^for\s*\((.*)=(.*);(.*)>(.*);.*\-\-\s*\){?$/)
   {
@@ -246,39 +395,66 @@ sub nonterminals_range
   {
     print "for = $1\n";
     my ($a, $b) = map {plpy_engine::iterate_trans_functions($_)} ($1,$2);
-    return "range($a:$b)";
+    return "range($a:".(1 + $b).")";
   }
   return $line;
 }
 
-sub nonterminals_print_lines_single_quotes
+sub nonterminals_print
 {
   my ($line) = @_;
-  if ($line =~ /^print\s*\(?'(.*)'\)?$/)
+  if ($line =~ /^print([^;]*);?$/)
   {
-    return 'print(".$1.")';
+    my $linebreak = 0;
+    my $string = $1;
+
+    if($string =~ /\\n/)
+    {
+      $linebreak = 1;
+      $string =~ s/(\\n|,?\s*"\\n")//g;
+    }
+
+    print "string = $string\n";
+    #my @strings = $string =~ /^(".+")(,|\.)?([^.,]+)?(,|\.)?$/g;
+    my @strings = split /[,\.]/, $string;
+    print "strings = ".join(' : ',@strings)."\n";
+    my @mapped_strings = map {plpy_engine::iterate_trans_functions($_)} (@strings);
+    if($linebreak == 1)
+    {
+      return 'print('.join(' + ',@mapped_strings).')';
+    }
+    return 'print('.join(' + ',@mapped_strings).', end=\'\')';
   }
   return $line;
 }
 
-sub nonterminals_print_with_variables
+sub nonterminals_text_single_quotes
 {
   my ($line) = @_;
-  if ($line =~ /^print\s*\(?"(.*)(\\n)?"\)?\s*;?$/)
+  if ($line =~ /^'.*'$/)
+  {
+    return " $line ";
+  }
+  return $line;
+}
+
+sub nonterminals_text_with_variables
+{
+  my ($line) = @_;
+  if ($line =~ /^"(.*)"$/)
   {
     my $string = $1;
-    my @variables = ($string =~ /([\$\@\%]\w+)/g);
-    $string =~ s/[\$\@\%](\w+)/\$s/g;
-    $string =~ s/\\n$//g;
-
+    my @variables = ($string =~ /([\$@%]\w+)/g);
+    #return $string;
     if (@variables)
 		{
+      $string =~ s/([\$@%]\w+)/%s/g;
       my @mapped_variables = map {plpy_engine::iterate_trans_functions($_)} (@variables);
-			return "print(\"$string\" \% (".join(",",@mapped_variables)."))";
+			return "\"$string\" \% (".join(",",@mapped_variables).")";
 		}
 		else
 		{
-			return "print(\"$string\")";
+			return "$line ";
 		}
   }
   return $line;

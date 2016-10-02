@@ -49,7 +49,7 @@ my @python_text = ();
 #print plpy_engine::iterate_trans_functions('4 ** 12')."\n";
 #print plpy_engine::iterate_trans_functions('$a + x != 3 + chomp($r) + (12 % 2) = 12')."\n";
 #print plpy_engine::iterate_trans_functions('$a >> x != 3 | chomp($r) + (12 ^ 2) << 12')."\n";
-#print plpy_engine::iterate_trans_functions('if($x != 3){')."\n";
+print plpy_engine::iterate_trans_functions('if($x == 3){')."\n";
 #print plpy_engine::iterate_trans_functions('elsif(chomp($s))')."\n";
 #print plpy_engine::iterate_trans_functions('else{')."\n";
 #print plpy_engine::iterate_trans_functions('while(chomp($x) + 4 = 3){')."\n";
@@ -59,25 +59,37 @@ my @python_text = ();
 #print plpy_engine::iterate_trans_functions('for ($x = 1;$x < 153; $x ++ )')."\n";
 #print plpy_engine::iterate_trans_functions('for ($x = 1546;$x > 153; $x -- )')."\n";
 #print plpy_engine::iterate_trans_functions("print(\'dgijdoijdoijv oiodhviodhoih\n\');")."\n";
-print plpy_engine::iterate_trans_functions('print("dgijdoijdoijv oiodh viod hoih\n");')."\n";
-print plpy_engine::iterate_trans_functions('print("dgijdoijdoijv $1 $hello oio %hello2 dhv @hello3 iodhoih\n");')."\n";
-
+#print plpy_engine::iterate_trans_functions('print "dgijdoijdoijv oiodh viod hoih\n";')."\n";
+print plpy_engine::iterate_trans_functions('print "dgijdoijdoijv $test", $i * $j."oiodh"."viod hoih\n";')."\n";
+#print plpy_engine::iterate_trans_functions('print "dgijdoijdoijv $1 $hello oio %hello2 dhv @hello3 iodhoih";')."\n";
+print plpy_engine::iterate_trans_functions('$line1 .= $line2.line3')."\n";
+print plpy_engine::iterate_trans_functions('print "Give me cookie/n";')."\n";
+#print plpy_engine::iterate_trans_functions('join(";",@texts)')."\n";
+#print plpy_engine::iterate_trans_functions('my $i = 45 + $z')."\n";
+#print plpy_engine::iterate_trans_functions('$i = <STDIN>')."\n";
+#print plpy_engine::iterate_trans_functions('split /;/,$hello2,3')."\n";
+#print plpy_engine::iterate_trans_functions('split /" + "/,@hello2')."\n";
+#print plpy_engine::iterate_trans_functions('$text1.$text2 eq $text3 + "hello"')."\n";
+#print plpy_engine::iterate_trans_functions('while ($line = <>) {')."\n";
 
 while (my $line = <>) {
 
 	chomp($line);
 
+	my $translated_line = plpy_engine::translate($line);
+	push @python_text, $translated_line if((defined $translated_line)&&($translated_line ne ""));
+
 
 	#my $plpy_functions = plpy_functions->new();
 
-	$line = plpy_functions::replace_and_operator($line);
-	$line = plpy_functions::replace_or_operator($line);
-	$line = plpy_functions::replace_not_operator($line);
-	$line = plpy_functions::replace_range_operator($line);
-	$line = plpy_functions::replace_spaceship_operator($line);
+	#$line = plpy_functions::replace_and_operator($line);
+	#$line = plpy_functions::replace_or_operator($line);
+	#$line = plpy_functions::replace_not_operator($line);
+	#$line = plpy_functions::replace_range_operator($line);
+	#$line = plpy_functions::replace_spaceship_operator($line);
 
-	$line = plpy_functions::replace_next($line);
-	$line = plpy_functions::replace_last($line);
+	#$line = plpy_functions::replace_next($line);
+	#$line = plpy_functions::replace_last($line);
 
 	#replace spaceship operator with cmp
 
@@ -90,53 +102,12 @@ while (my $line = <>) {
 	#$line =~ s/\!(.*)(\s*(\)|foreach|for|{|;))/ not\($1\) $2/g;
 
 
-  if ($line =~ /^#!/ && $. == 1)
-	{
-        	# translate #! line
 
-        	push @shebang_header, "#!/usr/local/bin/python3.5 -u";
-  }
-	elsif ($line =~ /^\s*#/ || $line =~ /^\s*$/)
-	{
-        	# Blank & comment lines can be passed unchanged
-
-        	push @python_text, $line;
-    	}
-	elsif ($line =~ /^\s*print\s*"(.*)\\n"[\s;]*$/)
-	{
-		my $string = $1;
-		my @variables = ($string =~ /[\$\@\%](\w+)/g);
-		$string =~ s/[\$\@\%](\w+)/\$s/g;
-
-		if (@variables)
-		{
-			push @python_text, "print(\"$string\" \% (".join(",",@variables)."))";
-		}
-		else
-		{
-			push @python_text, "print(\"$string\")";
-		}
-	}
-	elsif ($line =~ /^\s*print.*[^"][\$\@\%]([a-zA-Z0-9_]+)/)
-	{
-		my @variables_and_ops = ($line =~ /[\$\@\%]([a-zA-Z0-9_]+\s*[\+\-\/\*]*)/g);
-		#$1ine =~ s/\$[a-zA-Z0-9_]+/\$s/g;
-
-		push @python_text, "print(".join(" ",@variables_and_ops).")";
-	}
-	elsif ($line =~ /^\.*\$\w+/gi)
-	{
-		$line =~ s/(\$|;|(\{\{)|(\}\}))//g;
-		push @python_text, "$line";
-	}
-	else
-	{
-        	# Lines we can't translate are turned into comments
-
-        	push @python_text, "#$line";
-	}
 }
-print join("\n",@shebang_header);
+
+my (%headers) = plpy_nonterminals::get_header();
+
+print join("\n", keys(%headers));
 print("\n\n");
 print join("\n",@python_text);
 print "\n";
