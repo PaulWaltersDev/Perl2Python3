@@ -10,7 +10,7 @@ my $indent = 0; #adding global indent variable
 my @last_nested = ();	#lists most recent nesting
 my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
 
-my %shebang_header;
+my %header;
 my @python_text = ();
 
 sub terminals_integer
@@ -58,7 +58,14 @@ sub terminals_and
 sub terminals_arithmetic_operator
 {
   my ($line) = @_;
-  return $1 if ($line =~ /^(\*|\+|-|\/)$/);
+  return $1 if ($line =~ /^(\*|\+|-|\/|\*\*|%)$/);
+  return $line;
+}
+
+sub terminals_bitwise_operator
+{
+  my ($line) = @_;
+  return $1 if ($line =~ /^(&|\||~|\^|>>|<<)$/);
   return $line;
 }
 
@@ -87,20 +94,6 @@ sub terminals_last
 {
   my ($line) = @_;
   return "break" if ($line =~ /^last$/);
-  return $line;
-}
-
-sub terminals_naked_opening_closing_bracket
-{
-  my ($line) = @_;
-  return "" if ($line  =~ /^[{}]$/);
-  return $line;
-}
-
-sub terminals_shebang_perlpath
-{
-  my ($line) = @_;
-  return '!/usr/local/bin/python3.5 -u' if ($line  =~ /^#!/);
   return $line;
 }
 

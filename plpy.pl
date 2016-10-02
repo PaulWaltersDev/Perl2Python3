@@ -46,12 +46,22 @@ my @python_text = ();
 #print plpy_engine::iterate_trans_functions('($b)')."\n";
 #print plpy_engine::iterate_trans_functions('$temp == 6.5')."\n";
 #print plpy_engine::iterate_trans_functions('$a + 3 + (6 / 2)')."\n";
-#print plpy_engine::iterate_trans_functions('4 + 12')."\n";
-#print plpy_engine::iterate_trans_functions('$a + x != 3 + chomp($r) + (12 / 2) = 12')."\n";
-print plpy_engine::iterate_trans_functions('if($x != 3){')."\n";
-print plpy_engine::iterate_trans_functions('elsif(chomp($s))')."\n";
-print plpy_engine::iterate_trans_functions('else{')."\n";
-print plpy_engine::iterate_trans_functions('while(chomp($x) + 4 = 3){')."\n";
+#print plpy_engine::iterate_trans_functions('4 ** 12')."\n";
+#print plpy_engine::iterate_trans_functions('$a + x != 3 + chomp($r) + (12 % 2) = 12')."\n";
+#print plpy_engine::iterate_trans_functions('$a >> x != 3 | chomp($r) + (12 ^ 2) << 12')."\n";
+#print plpy_engine::iterate_trans_functions('if($x != 3){')."\n";
+#print plpy_engine::iterate_trans_functions('elsif(chomp($s))')."\n";
+#print plpy_engine::iterate_trans_functions('else{')."\n";
+#print plpy_engine::iterate_trans_functions('while(chomp($x) + 4 = 3){')."\n";
+#print plpy_engine::iterate_trans_functions('foreach $x (4..10){')."\n";
+#print plpy_engine::iterate_trans_functions('$x++;')."\n";
+#print plpy_engine::iterate_trans_functions('($x--)')."\n";
+#print plpy_engine::iterate_trans_functions('for ($x = 1;$x < 153; $x ++ )')."\n";
+#print plpy_engine::iterate_trans_functions('for ($x = 1546;$x > 153; $x -- )')."\n";
+#print plpy_engine::iterate_trans_functions("print(\'dgijdoijdoijv oiodhviodhoih\n\');")."\n";
+print plpy_engine::iterate_trans_functions('print("dgijdoijdoijv oiodh viod hoih\n");')."\n";
+print plpy_engine::iterate_trans_functions('print("dgijdoijdoijv $1 $hello oio %hello2 dhv @hello3 iodhoih\n");')."\n";
+
 
 while (my $line = <>) {
 
