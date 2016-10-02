@@ -19,6 +19,7 @@ my %shebang_header;
 my @python_text = ();
 
 my @terminals_list = (
+                        \&plpy_terminals::terminals_comment,
                         \&plpy_terminals::terminals_integer,
                         \&plpy_terminals::terminals_float,
                         \&plpy_terminals::terminals_variable,
@@ -39,6 +40,7 @@ my @nonterminals_list = (
                         \&plpy_nonterminals::misc_naked_opening_closing_bracket,
                         \&plpy_nonterminals::misc_stdin,
                         \&plpy_nonterminals::misc_double_brackets,
+                        \&plpy_nonterminals::misc_argv_list,
                         \&plpy_nonterminals::nonterminals_print,
                         \&plpy_nonterminals::nonterminals_text_single_quotes,
                         \&plpy_nonterminals::nonterminals_text_with_variables,
@@ -65,24 +67,37 @@ my @nonterminals_list = (
 sub translate
 {
   my ($line) = @_;
-  return ("$ind_sep" x plpy_nonterminals::get_indent()).iterate_trans_functions($line);
+  my ($indent) = plpy_nonterminals::get_indent();
+  my ($translated) = iterate_trans_functions($line);
+
+  if($translated)
+  {
+    return ("$ind_sep" x $indent).$translated;
+  }
+  else
+  {
+    return "";
+  }
 }
 
 sub iterate_trans_functions
 {
   #print "in trans functions loop\n";
   my ($line) = @_;
+  return if(!(defined $line and length $line));
   $line =~ s/^\s+//g;
   $line =~ s/\s+$//g;
   #$line =~ s/^\s+(.*)\s+$//g;
   #print "Caller = ".(caller(1))[3]."\n";
+  #print "current line = $line\n";
+  #print "indent = ".plpy_nonterminals::get_indent();
 
   #print "@terminals_list";
 
   foreach $trans_func(@terminals_list)
   {
     my $newline = &$trans_func($line);
-    return $newline if ($line ne $newline);
+    return $newline if ((!$newline)||($line ne $newline));
     #print "function &$trans_func iterating $line\n"
   }
 

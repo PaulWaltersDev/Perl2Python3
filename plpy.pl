@@ -49,7 +49,7 @@ my @python_text = ();
 #print plpy_engine::iterate_trans_functions('4 ** 12')."\n";
 #print plpy_engine::iterate_trans_functions('$a + x != 3 + chomp($r) + (12 % 2) = 12')."\n";
 #print plpy_engine::iterate_trans_functions('$a >> x != 3 | chomp($r) + (12 ^ 2) << 12')."\n";
-print plpy_engine::iterate_trans_functions('if($x == 3){')."\n";
+#print plpy_engine::iterate_trans_functions('if($x == 3){')."\n";
 #print plpy_engine::iterate_trans_functions('elsif(chomp($s))')."\n";
 #print plpy_engine::iterate_trans_functions('else{')."\n";
 #print plpy_engine::iterate_trans_functions('while(chomp($x) + 4 = 3){')."\n";
@@ -60,10 +60,10 @@ print plpy_engine::iterate_trans_functions('if($x == 3){')."\n";
 #print plpy_engine::iterate_trans_functions('for ($x = 1546;$x > 153; $x -- )')."\n";
 #print plpy_engine::iterate_trans_functions("print(\'dgijdoijdoijv oiodhviodhoih\n\');")."\n";
 #print plpy_engine::iterate_trans_functions('print "dgijdoijdoijv oiodh viod hoih\n";')."\n";
-print plpy_engine::iterate_trans_functions('print "dgijdoijdoijv $test", $i * $j."oiodh"."viod hoih\n";')."\n";
+#print plpy_engine::iterate_trans_functions('print "dgijdoijdoijv $test", $i * $j."oiodh"."viod hoih\n";')."\n";
 #print plpy_engine::iterate_trans_functions('print "dgijdoijdoijv $1 $hello oio %hello2 dhv @hello3 iodhoih";')."\n";
-print plpy_engine::iterate_trans_functions('$line1 .= $line2.line3')."\n";
-print plpy_engine::iterate_trans_functions('print "Give me cookie/n";')."\n";
+#print plpy_engine::iterate_trans_functions('$line1 .= $line2.line3')."\n";
+#print plpy_engine::iterate_trans_functions('print "Give me cookie/n";')."\n";
 #print plpy_engine::iterate_trans_functions('join(";",@texts)')."\n";
 #print plpy_engine::iterate_trans_functions('my $i = 45 + $z')."\n";
 #print plpy_engine::iterate_trans_functions('$i = <STDIN>')."\n";
@@ -107,7 +107,7 @@ while (my $line = <>) {
 
 my (%headers) = plpy_nonterminals::get_header();
 
-print join("\n", keys(%headers));
+print join("\n", (sort keys %headers));
 print("\n\n");
 print join("\n",@python_text);
 print "\n";

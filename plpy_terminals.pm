@@ -13,6 +13,13 @@ my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
 my %header;
 my @python_text = ();
 
+sub terminals_comment
+{
+  my ($line) = @_;
+  return "$line " if ($line =~ /^#[^!]/);
+  return $line;
+}
+
 sub terminals_integer
 {
   my ($line) = @_;
@@ -30,7 +37,7 @@ sub terminals_float
 sub terminals_variable
 {
   my ($line) = @_;
-  return "$1" if ($line =~ /^[\$@%]([a-zA-z][a-zA-Z0-9]*)$/);
+  return "$1" if (($line =~ /^[\$@%]([a-zA-z][a-zA-Z0-9]*)$/)&&($line ne '@ARGV'));
   return $line;
 }
 
@@ -117,14 +124,14 @@ sub terminals_end_semicolon
 sub terminals_next
 {
   my ($line) = @_;
-  return "continue" if ($line =~ /^next$/);
+  return "continue" if ($line =~ /^next;?$/);
   return $line;
 }
 
 sub terminals_last
 {
   my ($line) = @_;
-  return "break" if ($line =~ /^last$/);
+  return "break" if ($line =~ /^last;?$/);
   return $line;
 }
 

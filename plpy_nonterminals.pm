@@ -5,6 +5,7 @@ package plpy_nonterminals;
 #use strict;
 use warnings;
 use diagnostics;
+use feature "state";
 
 my @last_nested = ();	#lists most recent nesting
 my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
@@ -19,7 +20,7 @@ use plpy_nonterminals;
 
 #http://perldoc.perl.org/perlsub.html#Persistent-Private-Variables
 {
-  my $indent = 0;
+  my $indent = 1;
 
   sub add_indent
   {
@@ -33,7 +34,7 @@ use plpy_nonterminals;
 
   sub get_indent
   {
-      return $indent;
+    return $indent;
   }
 }
 
@@ -42,7 +43,7 @@ use plpy_nonterminals;
 
   sub add_header
   {
-    my $header_text = @_;
+    my ($header_text) = @_;
     $headers{$header_text} = 1;
   }
 
@@ -55,8 +56,13 @@ use plpy_nonterminals;
 sub header_shebang_perlpath
 {
   my ($line) = @_;
-  add_header('!/usr/local/bin/python3.5 -u') if ($line  =~ /^#!/);
+  if ($line  =~ /^#!/)
+  {
+    add_header('#!/usr/local/bin/python3.5 -u');
+    return " ";
+  }
   return $line;
+
 }
 
 
@@ -67,7 +73,7 @@ sub misc_naked_opening_closing_bracket
   if ($line =~ /^}$/)
   {
     reduce_indent();
-    return "";
+    return " ";
   }
 
   return $line;
@@ -88,7 +94,7 @@ sub misc_stdin
 sub misc_argv_list
 {
   my ($line) = @_;
-  if ($line =~ /^@ARGV$/i)
+  if ($line eq '@ARGV')
   {
     add_header("import sys");
     return 'sys.argv[1:]';
@@ -181,6 +187,7 @@ sub nonterminals_join
   my ($line) = @_;
   if ($line =~ /^join\(['"](.*)['"],(.*)\)$/)
   {
+    print "joinline = $line ... $1 .... $2\n";
     return "\"$1\".join(".plpy_engine::iterate_trans_functions($2).")";
   }
 
@@ -202,6 +209,7 @@ sub nonterminals_comp_exp
 {
   #print "hello_non_terminals comp_exp\n";
   my ($line) = @_;
+  return $line if($line =~ /STDIN/);
   if (my @items = $line =~ /^(.+)(==|<|>|!=|>=|<=)(.+)$/)
   {
     print "line = $line\n";
@@ -290,7 +298,7 @@ sub nonterminals_not
 sub nonterminals_chomp
 {
   my ($line) = @_;
-  if ($line =~ /^chomp\s*\(+(.*)\)+$/)
+  if ($line =~ /^chomp\s*\(?([^;]*)\)?;?$/)
   {
     my $string = plpy_engine::iterate_trans_functions($1);
     return "$string = $string.rstrip()";
@@ -308,10 +316,12 @@ sub nonterminals_if_elsif_else
   }
   elsif ($line =~ /^elsif\s*\((.*)\)\s*{?$/)
   {
+      add_indent();
       return "else if ".plpy_engine::iterate_trans_functions($1).":";
   }
   elsif ($line =~ /^else\s*{?$/)
   {
+      add_indent();
       return "else:";
   }
   return $line;
@@ -331,7 +341,8 @@ sub nonterminals_while
 sub nonterminals_foreach
 {
   my ($line) = @_;
-  if ($line =~ /^foreach\s*(.*)\s\((.*)\){?$/)
+  print "foreach = ......$line...\n";
+  if ($line =~ /^foreach\s*(.*)\s*\((.*)\)\s*{?$/)
   {
     add_indent();
     my ($a, $b) = map {plpy_engine::iterate_trans_functions($_)} ($1,$2);
@@ -393,8 +404,9 @@ sub nonterminals_range
   my ($line) = @_;
   if ($line =~ /^(.*)\.\.(.*)$/)
   {
-    print "for = $1\n";
+    print "for = ..$1....$2...\n";
     my ($a, $b) = map {plpy_engine::iterate_trans_functions($_)} ($1,$2);
+    print "for2 = $a .. $b\n";
     return "range($a:".(1 + $b).")";
   }
   return $line;
@@ -415,9 +427,9 @@ sub nonterminals_print
     }
 
     print "string = $string\n";
-    #my @strings = $string =~ /^(".+")(,|\.)?([^.,]+)?(,|\.)?$/g;
-    my @strings = split /[,\.]/, $string;
-    print "strings = ".join(' : ',@strings)."\n";
+    my @strings = $string =~ /^(".+")?(\s*join\(.*\))?(,|\.)?([^.,]+)?(,|\.)?$/g;
+    #my @strings = split /[,\.]/, $string;
+    #print "strings = ".join(' : ',@strings)."\n";
     my @mapped_strings = map {plpy_engine::iterate_trans_functions($_)} (@strings);
     if($linebreak == 1)
     {
