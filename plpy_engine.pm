@@ -1,8 +1,14 @@
 #!/usr/bin/perl -w
 
+# plpy_engine.pm
+# Created by Paul Walters z5077446
+
+# Contains the recursive parsing function that calls functions for all
+# terminal and non_terminals
+# Also adds indentation and comments out all untranslatable lines
+
 package plpy_engine;
 
-#use strict;
 use warnings;
 use diagnostics;
 
@@ -12,11 +18,10 @@ use plpy_terminals;
 use plpy_nonterminals;
 
 my $indent = 0; #adding global indent variable
-my @last_nested = ();	#lists most recent nesting
 my $ind_sep = "  "; 	# variable containing three spaces, used for indenting.
 
-my %shebang_header;
-my @python_text = ();
+# all parsing/translation functions are iterated through as references
+# stored in separate arrays for terminals and non-terminals
 
 my @terminals_list = (
                         \&plpy_terminals::terminals_comment,
@@ -39,7 +44,9 @@ my @terminals_list = (
 my @nonterminals_list = (
                         \&plpy_nonterminals::header_shebang_perlpath,
                         \&plpy_nonterminals::misc_naked_opening_closing_bracket,
+                        \&plpy_nonterminals::misc_stdin_while,
                         \&plpy_nonterminals::misc_stdin,
+                        \&plpy_nonterminals::misc_double_curly_braces,
                         \&plpy_nonterminals::misc_double_brackets,
                         \&plpy_nonterminals::misc_argv_list,
                         \&plpy_nonterminals::nonterminals_regex,
@@ -59,6 +66,7 @@ my @nonterminals_list = (
                         \&plpy_nonterminals::nonterminals_paranthesis,
                         \&plpy_nonterminals::nonterminals_range,
                         \&plpy_nonterminals::nonterminals_regex_match_expr,
+                        \&plpy_nonterminals::nonterminals_comp_eq,
                         \&plpy_nonterminals::nonterminals_comp_exp,
                         \&plpy_nonterminals::nonterminals_variable_assignment,
                         \&plpy_nonterminals::nonterminals_bitwise_exp,
@@ -66,6 +74,10 @@ my @nonterminals_list = (
                         \&plpy_nonterminals::nonterminals_stringarith_exp,
                         \&plpy_nonterminals::nonterminals_string_equiv_exp
 );
+
+# Persistent flag, called from plpy_nonterminals.pm,
+# to register that a line is not translatable
+# If $unrecognised = 1, the line is commented out
 
 {
   my $unrecognised = 0;
@@ -86,6 +98,8 @@ my @nonterminals_list = (
   }
 }
 
+# Takes the line from plpy.pl and calls the recursive tranbslate
+# function
 sub translate
 {
   my ($line) = @_;
@@ -94,6 +108,8 @@ sub translate
   my ($translated) = iterate_trans_functions($line);
 
   $translated = "#".$translated if is_unrecognised();
+
+  # Adds indentation and returns translated text
 
   if($translated)
   {
@@ -105,34 +121,48 @@ sub translate
   }
 }
 
+# Recursively calls all terminal and nonterminal functions
+# and passes text to translated
+# Also launched by nonterminal functions
+# to return translated terminals and smaller nonterminals
 sub iterate_trans_functions
 {
-  #print "in trans functions loop\n";
   my ($line) = @_;
 
+  #Attribution over text to determine is string is empty
   #http://stackoverflow.com/questions/2045644/what-is-the-proper-way-to-check-if-a-string-is-empty-in-perl
   return if(!(defined $line and length $line));
-  $line =~ s/^\s+//g;
+  $line =~ s/^\s+//g;   #Removes leading and trailing whitespace
   $line =~ s/\s+$//g;
-  #$line =~ s/^\s+(.*)\s+$//g;
-  #print "Caller = ".(caller(1))[3]."\n";
-  #print "current line = $line\n";
-  #print "indent = ".plpy_nonterminals::get_indent();
-
-  #print "@terminals_list";
 
   foreach $trans_func(@terminals_list)
   {
     my $newline = &$trans_func($line);
-    return $newline if ((!$newline)||($line ne $newline));
-    #print "function &$trans_func iterating $line\n"
+    if ($line ne $newline)
+    {
+      # Note that all translated lines returned have at least one extra white space
+      # This is because the function plpy_engine::iterate_trans_functions
+      # compares the resultant python text to the original to determine
+      # what is finished python and what is yet to be translated,
+      # however there are some expressions (such as floats, integers, some operators etc.)
+      # that are identical in perl and python. This is removed below.
+
+      $newline =~ s/^\s+//g;
+      $newline =~ s/\s+$//g;
+      return $newline;
+    }
   }
 
   foreach $trans_func(@nonterminals_list)
   {
+    # A few nonterminal functions also use whitespace
     my $newline = &$trans_func($line);
-    return $newline if ($line ne $newline);
-    #print "function &$trans_func iterating $line\n"
+    if ($line ne $newline)
+    {
+      $newline =~ s/^\s+//g;
+      $newline =~ s/\s+$//g;
+      return $newline;
+    }
   }
 
   set_unrecognised();

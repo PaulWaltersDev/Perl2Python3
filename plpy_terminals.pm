@@ -1,18 +1,28 @@
 #!/usr/bin/perl -w
 
+# plpy_nonterminals.pm
+# Created by Paul Walters z5077446
+
+# Contains translation functions for basic perl syntax
+# terminals
+
+# Note that all translated lines returned have at least one extra white space
+# This is because the function plpy_engine::iterate_trans_functions
+# compares the resultant python text to the original to determine
+# what is finished python and what is yet to be translated,
+# however there are some expressions (such as floats, integers, some operators etc.)
+# that are identical in perl and python. This is removed later in plpy_engine.
+
 package plpy_terminals;
 
+# blanked out for submission. They
+# can be reintroduced at any time.
+
 #use strict;
-use warnings;
-use diagnostics;
+#use warnings;
+#use diagnostics;
 
-my $indent = 0; #adding global indent variable
-my @last_nested = ();	#lists most recent nesting
-my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
-
-my %header;
-my @python_text = ();
-
+# Maintains support for existing comments
 sub terminals_comment
 {
   my ($line) = @_;
@@ -23,28 +33,28 @@ sub terminals_comment
 sub terminals_integer
 {
   my ($line) = @_;
-  return "$1" if ($line =~ /^(-?\d+)$/);
+  return "$1 " if ($line =~ /^(-?\d+)$/);
   return $line;
 }
 
 sub terminals_float
 {
   my ($line) = @_;
-  return "$1" if ($line =~ /^(-?\d*\.\d+)$/);
+  return "$1 " if ($line =~ /^(-?\d*\.\d+)$/);
   return $line;
 }
 
 sub terminals_variable
 {
   my ($line) = @_;
-  return "$1" if (($line =~ /^[\$@%]([a-zA-z][a-zA-Z0-9]*)$/)&&($line ne '@ARGV'));
+  return "$1 " if (($line =~ /^[\$@%]([a-zA-z][a-zA-Z0-9_]*)$/)&&($line ne '@ARGV'));
   return $line;
 }
 
 sub terminals_whitespace
 {
   my ($line) = @_;
-  return "$1" if ($line =~ /^(\s+)$/);
+  return "$1 " if ($line =~ /^(\s+)$/);
   return $line;
 }
 
@@ -65,14 +75,14 @@ sub terminals_and
 sub terminals_arithmetic_operator
 {
   my ($line) = @_;
-  return $1 if ($line =~ /^(\*|\+|-|\/|\*\*|%)$/);
+  return "$1 " if ($line =~ /^(\*|\+|-|\/|\*\*|%)$/);
   return $line;
 }
 
 sub terminals_bitwise_operator
 {
   my ($line) = @_;
-  return $1 if ($line =~ /^(&|\||~|\^|>>|<<)$/);
+  return "$1 " if ($line =~ /^(&|\||~|\^|>>|<<)$/);
   return $line;
 }
 
@@ -86,6 +96,14 @@ sub terminals_stringarith_exp
   elsif ($line eq ".=")
   {
     return "+="
+  }
+  elsif ($line eq "+=")
+  {
+    return "+= "
+  }
+  elsif ($line eq "-=")
+  {
+    return "-= "
   }
   elsif ($line eq "eq")
   {
@@ -124,7 +142,7 @@ sub terminals_regex_comp_operator
 sub terminals_comp_operator
 {
   my ($line) = @_;
-  return $1 if ($line =~ /^(==|<|>|!=|>=|<=)$/);
+  return "$1 " if ($line =~ /^(==|<|>|!=|>=|<=)$/);
   return $line;
 }
 

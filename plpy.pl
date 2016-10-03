@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
-# Hash linking translation functions to regex keys used in searches
+# plpy.pm
+# Created by Paul Walters z5077446
 
 use strict;
 use warnings;
@@ -12,13 +13,13 @@ use plpy_functions;
 use plpy_engine;
 use plpy_terminals;
 use plpy_nonterminals;
-# written by Paul Walters z5077446 Sep 2016
-my $indent = 0; #adding global indent variable
-my @last_nested = ();	#lists most recent nesting
-my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
 
-my @shebang_header = ();
-my @python_text = ();
+#my $indent = 0; #adding global indent variable
+#my @last_nested = ();	#lists most recent nesting
+#my $ind_sep = "   "; 	# variable containing three spaces, used for indenting.
+
+my @shebang_header = ();	# used to retrieve header from plpy_nonterminals
+my @python_text = ();		#Stores python code body as taken from plpy_engine
 
 #print plpy_engine::iterate_trans_functions('$hello')."\n";
 #print plpy_engine::iterate_trans_functions('@myhello')."\n";
@@ -71,43 +72,23 @@ my @python_text = ();
 #print plpy_engine::iterate_trans_functions('split /" + "/,@hello2')."\n";
 #print plpy_engine::iterate_trans_functions('$text1.$text2 eq $text3 + "hello"')."\n";
 #print plpy_engine::iterate_trans_functions('while ($line = <>) {')."\n";
+#print plpy_engine::iterate_trans_functions('$list[$item] = $t + 5;')."\n";
+#print plpy_engine::iterate_trans_functions('$list[5..23]')."\n";
+#print plpy_engine::iterate_trans_functions('my @mylist = [3,4,"hello1",$var1,@list1]')."\n";
+#print plpy_engine::iterate_trans_functions('$list[4,5,6,7]')."\n";
 
+#Loops through all STDIN
 while (my $line = <>) {
 
 	chomp($line);
 
-	my $translated_line = plpy_engine::translate($line);
+	my $translated_line = plpy_engine::translate($line);	#Passes in perl and retrieves python from plpy_engine
 	push @python_text, $translated_line if((defined $translated_line)&&($translated_line ne ""));
-
-
-	#my $plpy_functions = plpy_functions->new();
-
-	#$line = plpy_functions::replace_and_operator($line);
-	#$line = plpy_functions::replace_or_operator($line);
-	#$line = plpy_functions::replace_not_operator($line);
-	#$line = plpy_functions::replace_range_operator($line);
-	#$line = plpy_functions::replace_spaceship_operator($line);
-
-	#$line = plpy_functions::replace_next($line);
-	#$line = plpy_functions::replace_last($line);
-
-	#replace spaceship operator with cmp
-
-	#$line =~ s/(\$\w+)\s*<=>\s*(\$\w+)/cmp($1,$2)/g;
-
-	# replace logical operators || && !
-
-	#$line =~ s/&&/ and /g;
-	#$line =~ s/\|\|/ or /g;
-	#$line =~ s/\!(.*)(\s*(\)|foreach|for|{|;))/ not\($1\) $2/g;
-
-
-
 }
 
-my (%headers) = plpy_nonterminals::get_header();
+my (%headers) = plpy_nonterminals::get_header();	# Gets Shebang/Python3.5 path and import statements
 
 print join("\n", (sort keys %headers));
-print("\n\n");
+print("\n");
 print join("\n",@python_text);
 print "\n";
