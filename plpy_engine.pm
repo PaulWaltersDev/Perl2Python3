@@ -26,6 +26,7 @@ my @terminals_list = (
                         \&plpy_terminals::terminals_whitespace,
                         \&plpy_terminals::terminals_or,
                         \&plpy_terminals::terminals_and,
+                        \&plpy_terminals::terminals_regex_comp_operator,
                         \&plpy_terminals::terminals_arithmetic_operator,
                         \&plpy_terminals::terminals_bitwise_operator,
                         \&plpy_terminals::terminals_end_semicolon,
@@ -41,6 +42,7 @@ my @nonterminals_list = (
                         \&plpy_nonterminals::misc_stdin,
                         \&plpy_nonterminals::misc_double_brackets,
                         \&plpy_nonterminals::misc_argv_list,
+                        \&plpy_nonterminals::nonterminals_regex,
                         \&plpy_nonterminals::nonterminals_print,
                         \&plpy_nonterminals::nonterminals_text_single_quotes,
                         \&plpy_nonterminals::nonterminals_text_with_variables,
@@ -56,6 +58,7 @@ my @nonterminals_list = (
                         \&plpy_nonterminals::nonterminals_increment_decrement,
                         \&plpy_nonterminals::nonterminals_paranthesis,
                         \&plpy_nonterminals::nonterminals_range,
+                        \&plpy_nonterminals::nonterminals_regex_match_expr,
                         \&plpy_nonterminals::nonterminals_comp_exp,
                         \&plpy_nonterminals::nonterminals_variable_assignment,
                         \&plpy_nonterminals::nonterminals_bitwise_exp,
@@ -64,11 +67,33 @@ my @nonterminals_list = (
                         \&plpy_nonterminals::nonterminals_string_equiv_exp
 );
 
+{
+  my $unrecognised = 0;
+
+  sub set_unrecognised
+  {
+    $unrecognised = 1;
+  }
+
+  sub unset_unrecognised
+  {
+    $unrecognised = 0;
+  }
+
+  sub is_unrecognised
+  {
+    return $unrecognised;
+  }
+}
+
 sub translate
 {
   my ($line) = @_;
+  unset_unrecognised();
   my ($indent) = plpy_nonterminals::get_indent();
   my ($translated) = iterate_trans_functions($line);
+
+  $translated = "#".$translated if is_unrecognised();
 
   if($translated)
   {
@@ -84,6 +109,8 @@ sub iterate_trans_functions
 {
   #print "in trans functions loop\n";
   my ($line) = @_;
+
+  #http://stackoverflow.com/questions/2045644/what-is-the-proper-way-to-check-if-a-string-is-empty-in-perl
   return if(!(defined $line and length $line));
   $line =~ s/^\s+//g;
   $line =~ s/\s+$//g;
@@ -107,6 +134,8 @@ sub iterate_trans_functions
     return $newline if ($line ne $newline);
     #print "function &$trans_func iterating $line\n"
   }
+
+  set_unrecognised();
 
   return $line;
 }

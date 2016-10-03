@@ -38,6 +38,8 @@ use plpy_nonterminals;
   }
 }
 
+
+
 {
   my %headers;
 
@@ -136,19 +138,86 @@ sub misc_double_brackets
   return $line;
 }
 
-sub non_terminals_regex
+sub nonterminals_regex
+{
+  my $regex_string;
+  my $pattern;
+
+  my ($line) = @_;
+  #print "regexline = $line\n";
+  if ($line =~ /^s\/(.*)\/(.*)\/(\w)?;?$/)
+  {
+    $pattern = $1;
+
+    $pattern.='\n' if($pattern =~ /\.\*$/);
+
+    if($2)
+    {
+      $regex_string = "re.sub(r\'$pattern\',\'$2\',replacevar";
+    }
+    else
+    {
+      $regex_string = "re.sub(r\'$pattern\',\'\',replacevar";
+    }
+
+    if($3)
+    {
+      if ($3 !~ /g/)
+      {
+        $regex_string .= ",count=1";
+      }
+      elsif($3 =~ /i/)
+      {
+        $regex_string .= ",flags=re.I";
+      }
+    }
+    else
+    {
+      $regex_string .= ",count=1";
+    }
+
+    return $regex_string.")";
+  }
+  elsif ($line =~ m{^/(.*)/(\w)?;?$})
+  {
+    $pattern = $1;
+    $pattern.="\\n" if($pattern =~ /\.\*$/);
+    $regex_string = 're.match(r\''.$pattern.'\',replacevar';
+    print "mode = $2";
+    if($2)
+    {
+      if($2 !~ /g/)
+      {
+        $regex_string .= ",count=1";
+      }
+      elsif($2 =~ /i/)
+      {
+        $regex_string .= ",flags=re.I";
+      }
+    }
+    else
+    {
+      $regex_string .= ",count=1";
+    }
+
+    return $regex_string.")";
+  }
+
+  return $line;
+}
+
+sub nonterminals_regex_match_expr
 {
   my ($line) = @_;
-  my $filevariable;
-  if ($line =~ m{//})
+  if (@strings = $line =~ /^(.*\S)\s*(=~|!~)\s*(\S.*)$/)
   {
 
+    add_header("import re");
+    my ($a, $b, $c) = map {plpy_engine::iterate_trans_functions($_)} ($1, $2, $3);
+    #print "hello = $a....$b...$c\n";
+    $c =~ s/replacevar/$a/;
+    return "$a $b $c";
   }
-  elsif ($line =~ /^while\s*\(\s*<>\s*\)\s*{?$/)
-  {
-
-  }
-
   return $line;
 }
 
@@ -163,7 +232,7 @@ sub nonterminals_split
   {
     $line =~ s/^split\s*//g;
     $line =~ s/\///g;
-    print "line = $line\n";
+    #print "line = $line\n";
     my ($a, $b, $c) = split /,/, $line;
     $a =~ s\['"]\\g;
     if(defined $c)
@@ -187,7 +256,7 @@ sub nonterminals_join
   my ($line) = @_;
   if ($line =~ /^join\(['"](.*)['"],(.*)\)$/)
   {
-    print "joinline = $line ... $1 .... $2\n";
+    #print "joinline = $line ... $1 .... $2\n";
     return "\"$1\".join(".plpy_engine::iterate_trans_functions($2).")";
   }
 
@@ -212,8 +281,8 @@ sub nonterminals_comp_exp
   return $line if($line =~ /STDIN/);
   if (my @items = $line =~ /^(.+)(==|<|>|!=|>=|<=)(.+)$/)
   {
-    print "line = $line\n";
-    print "items = @items\n";
+    #print "line = $line\n";
+    #print "items = @items\n";
     my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
     return join('',@output);
   }
@@ -341,7 +410,7 @@ sub nonterminals_while
 sub nonterminals_foreach
 {
   my ($line) = @_;
-  print "foreach = ......$line...\n";
+  #print "foreach = ......$line...\n";
   if ($line =~ /^foreach\s*(.*)\s*\((.*)\)\s*{?$/)
   {
     add_indent();
@@ -404,9 +473,9 @@ sub nonterminals_range
   my ($line) = @_;
   if ($line =~ /^(.*)\.\.(.*)$/)
   {
-    print "for = ..$1....$2...\n";
+    #print "for = ..$1....$2...\n";
     my ($a, $b) = map {plpy_engine::iterate_trans_functions($_)} ($1,$2);
-    print "for2 = $a .. $b\n";
+    #print "for2 = $a .. $b\n";
     return "range($a:".(1 + $b).")";
   }
   return $line;
@@ -426,7 +495,7 @@ sub nonterminals_print
       $string =~ s/(\\n|,?\s*"\\n")//g;
     }
 
-    print "string = $string\n";
+    #print "string = $string\n";
     my @strings = $string =~ /^(".+")?(\s*join\(.*\))?(,|\.)?([^.,]+)?(,|\.)?$/g;
     #my @strings = split /[,\.]/, $string;
     #print "strings = ".join(' : ',@strings)."\n";
@@ -462,7 +531,7 @@ sub nonterminals_text_with_variables
 		{
       $string =~ s/([\$@%]\w+)/%s/g;
       my @mapped_variables = map {plpy_engine::iterate_trans_functions($_)} (@variables);
-			return "\"$string\" \% (".join(",",@mapped_variables).")";
+			return "(\"$string\" \% (".join(",",@mapped_variables)."))";
 		}
 		else
 		{

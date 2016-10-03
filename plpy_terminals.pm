@@ -106,6 +106,20 @@ sub terminals_stringarith_exp
   return $line;
 }
 
+sub terminals_regex_comp_operator
+{
+  my ($line) = @_;
+  if($line eq "=~")
+  {
+    return "=";
+  }
+  elsif($line eq '!~')
+  {
+    return "!=";
+  }
+
+  return $line;
+}
 
 sub terminals_comp_operator
 {
