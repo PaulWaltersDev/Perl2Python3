@@ -117,7 +117,7 @@ sub misc_stdin
 sub misc_stdin_while
 {
   my ($line) = @_;
-  if ($line =~ /^while\s*\((\$[\w_]+)\s*=\s*<STDIN>\)\s*{?$/i)
+  if ($line =~ /^while\s*\(.*(\$[\w_]+)\s*=\s*<STDIN>\)\s*{?$/i)
   {
     add_indent();
     add_header("import sys");
@@ -171,7 +171,7 @@ sub misc_double_brackets
 {
   my ($line) = @_;
   my $filevariable;
-  if ($line =~ /^while\s*\((.*)\s*=\s*<>\s*\)\s*{?$/)
+  if ($line =~ /^while\s*\(.*(\$\w+)\s*=\s*<>\s*\)\s*{?$/)
   {
     add_indent();
     add_header("import fileinput");
@@ -503,7 +503,7 @@ sub nonterminals_while
 sub nonterminals_foreach
 {
   my ($line) = @_;
-  if ($line =~ /^foreach\s*(.*)\s*\((.*)\)\s*{?$/)
+  if ($line =~ /^foreach.*(\$\w+)\s*\((.*)\)\s*{?$/)
   {
     add_indent();
     my ($a, $b) = map {plpy_engine::iterate_trans_functions($_)} ($1,$2);

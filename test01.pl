@@ -8,7 +8,7 @@ use warnings;
 use diagnostics;
 
 $total = 0;
-total_string = "";
+$total_string = "";
 
 while($i = <STDIN>)
 {
@@ -18,7 +18,7 @@ while($i = <STDIN>)
     last;
   }
   $total += $i;
-  $total_string.= $i;
+  $total_string .= $i;
 }
 
 print "total = $total\n";

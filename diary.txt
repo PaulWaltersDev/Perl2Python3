@@ -1,86 +1,26 @@
-commit 0c7f58f3d4daff2b7035a173fec8d4751edcb0c2
-Author: Andrew taylor <andrewt@cse.usnw.edu.au>
-Date:   Sat Sep 3 18:16:15 2016 +1000
-
-    files supplied to start the assignment
-
-commit cf0b6b7ba327c3dcda404ac1556bc8d3a1061f54
-Author: z5077446 <z5077446@cse.unsw.EDU.AU>
-Date:   Sun Sep 11 12:05:59 2016 +1000
-
-    Paul Walters' first checkin
-
-commit 3b44ca58f7ac08c0ccb5d7dbe7b9b006dae55e05
-Author: z5077446 <z5077446@cse.unsw.EDU.AU>
-Date:   Sun Sep 18 21:13:03 2016 +1000
-
-    Added if statements to handle variables and print statements containing variables - note subset 2 ex 4 still fails
-
-commit c86747e3324b0dd40d337c57aec577e1372eb8a9
-Author: z5077446 <z5077446@cse.unsw.EDU.AU>
-Date:   Sun Sep 18 21:17:48 2016 +1000
-
-    18/09/2016 15:00 - 21:15 coding - Added Indent Variable and if statements to handle variables and print statements containing variables - note subset 2 ex 4 still fails
-
-commit 8c0024b5755f2d55240b76b696c507cccc7ae5fa
-Author: z5077446 <z5077446@cse.unsw.EDU.AU>
-Date:   Thu Sep 22 21:49:50 2016 +1000
-
-    22/09/2016 9:30-9:50 Added new regex to print function
-
-commit 85352fdade7630f938825e266bbb39a14e69dc1d
+commit 2de4c55395060a6bf7a4e07277a050105e25289d
 Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Fri Sep 23 01:38:55 2016 +1000
+Date:   Tue Oct 4 02:03:39 2016 +1100
 
-    22/09/2016 23:00-01:30 Added conversions for logical operators and printing of variables outside of print quotes
+    04/09/2016 01:50-02:03 Made an amendment to plpy.pl tp remove a redundant file dependency that blocked submission
 
-commit fee57c783c1787bc4c65eb06b4140397dc26c3f4
+commit 742d1fecd5d93cf872d025ff65a816429aea4fb2
 Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Sun Sep 25 18:01:42 2016 +1000
+Date:   Tue Oct 4 01:48:05 2016 +1100
 
-    25/09/2016 16:00-18:00 Separated replace functions to new module plpy_functions.pm, added range, next and last operator translations
+    03/09/2016 21:00-01:45 Final Submission, with bug fixes and help and demo files. Apologies for the lateness
 
-commit e068ae2be0248eb84a69cb4ca17702b612c5a663
+commit 91a7b5fbf47bcf3efabc122b503424945cc63a0e
 Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Tue Sep 27 00:33:34 2016 +1000
+Date:   Mon Oct 3 16:13:21 2016 +1100
 
-    26/09/2016 23:00-00:30 added if, chomp, split, join, x++, x--. Yet to fully test.
+    03/10/2016 14:00-16:13 added regex match and replace and commenting out of untranslated lines
 
-commit f23fa321162d5ba1c9f094520fc2e45c8e37bb98
+commit dfe1fb064300b1feb264520d6380d2f5bcb5cb01
 Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Tue Sep 27 23:17:21 2016 +1000
+Date:   Mon Oct 3 10:30:34 2016 +1100
 
-    26/09/2016 15:00-16:00 added chomp, split, join, increments, if, foreach, for, while, removing naked }{ . Yet to fully test.
-
-commit 87e6935904faacbcf009a70452f9bf71d9ead7af
-Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Wed Sep 28 00:10:02 2016 +1000
-
-    27/09/2016 23:00-00:00 added new hash to iterate all replace and parse token functions.
-
-commit 99fe12e3c53fa6910304addfdf9610445b0fc0fc
-Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Fri Sep 30 01:18:31 2016 +1000
-
-    29/09/2016 23:00-01:15 normalised code into terminal and soon non-terminal translation functions, following a similar method to general recursive descent parsers.
-
-commit 00a31266214bf8ef1a0bbd2873828e0a928010b8
-Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Sat Oct 1 02:06:58 2016 +1000
-
-    30/09/2016 22:00-02:05 added non-terminal translation functions and parser recursion.
-
-commit b0072ce3a6ed0e0a7800a3daa08b23c60435319c
-Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Sat Oct 1 16:48:01 2016 +1000
-
-    01/10/2016 12:00-16:55 added support for arithmetic expressions and comparison operators, if/elsif/else/while statements.
-
-commit 07e8706532c86530af0e61064a1f9c7d93d0becb
-Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Sun Oct 2 17:49:21 2016 +1100
-
-    02/10/2016 14:00-17:49 added C-style for, foreach, while, indentation support and started work on print
+    03/10/2016 09:00-10:29 fixed various defects in join, range, indenting, print and argv
 
 commit 3c9cfb7caac803ba55d98f9a39207ee51229ae7a
 Author: Paul Walters <z5077446@student.unsw.edu.au>
@@ -88,8 +28,86 @@ Date:   Mon Oct 3 03:28:09 2016 +1100
 
     29/09/2016 19:00-03:27 added <>, <STDIN>, @ARGV, indentations, string arithmetic, join, split..
 
-commit dfe1fb064300b1feb264520d6380d2f5bcb5cb01
+commit 07e8706532c86530af0e61064a1f9c7d93d0becb
 Author: Paul Walters <z5077446@student.unsw.edu.au>
-Date:   Mon Oct 3 10:30:34 2016 +1100
+Date:   Sun Oct 2 17:49:21 2016 +1100
 
-    03/10/2016 09:00-10:29 fixed various defects in join, range, indenting, print and argv
+    02/10/2016 14:00-17:49 added C-style for, foreach, while, indentation support and started work on print
+
+commit b0072ce3a6ed0e0a7800a3daa08b23c60435319c
+Author: Paul Walters <z5077446@student.unsw.edu.au>
+Date:   Sat Oct 1 16:48:01 2016 +1000
+
+    01/10/2016 12:00-16:55 added support for arithmetic expressions and comparison operators, if/elsif/else/while statements.
+
+commit 00a31266214bf8ef1a0bbd2873828e0a928010b8
+Author: Paul Walters <z5077446@student.unsw.edu.au>
+Date:   Sat Oct 1 02:06:58 2016 +1000
+
+    30/09/2016 22:00-02:05 added non-terminal translation functions and parser recursion.
+
+commit 99fe12e3c53fa6910304addfdf9610445b0fc0fc
+Author: Paul Walters <z5077446@student.unsw.edu.au>
+Date:   Fri Sep 30 01:18:31 2016 +1000
+
+    29/09/2016 23:00-01:15 normalised code into terminal and soon non-terminal translation functions, following a similar method to general recursive descent parsers.
+
+commit 87e6935904faacbcf009a70452f9bf71d9ead7af
+Author: Paul Walters <z5077446@student.unsw.edu.au>
+Date:   Wed Sep 28 00:10:02 2016 +1000
+
+    27/09/2016 23:00-00:00 added new hash to iterate all replace and parse token functions.
+
+commit f23fa321162d5ba1c9f094520fc2e45c8e37bb98
+Author: Paul Walters <z5077446@student.unsw.edu.au>
+Date:   Tue Sep 27 23:17:21 2016 +1000
+
+    26/09/2016 15:00-16:00 added chomp, split, join, increments, if, foreach, for, while, removing naked }{ . Yet to fully test.
+
+commit e068ae2be0248eb84a69cb4ca17702b612c5a663
+Author: Paul Walters <z5077446@student.unsw.edu.au>
+Date:   Tue Sep 27 00:33:34 2016 +1000
+
+    26/09/2016 23:00-00:30 added if, chomp, split, join, x++, x--. Yet to fully test.
+
+commit fee57c783c1787bc4c65eb06b4140397dc26c3f4
+Author: Paul Walters <z5077446@student.unsw.edu.au>
+Date:   Sun Sep 25 18:01:42 2016 +1000
+
+    25/09/2016 16:00-18:00 Separated replace functions to new module plpy_functions.pm, added range, next and last operator translations
+
+commit 85352fdade7630f938825e266bbb39a14e69dc1d
+Author: Paul Walters <z5077446@student.unsw.edu.au>
+Date:   Fri Sep 23 01:38:55 2016 +1000
+
+    22/09/2016 23:00-01:30 Added conversions for logical operators and printing of variables outside of print quotes
+
+commit 8c0024b5755f2d55240b76b696c507cccc7ae5fa
+Author: z5077446 <z5077446@cse.unsw.EDU.AU>
+Date:   Thu Sep 22 21:49:50 2016 +1000
+
+    22/09/2016 9:30-9:50 Added new regex to print function
+
+commit c86747e3324b0dd40d337c57aec577e1372eb8a9
+Author: z5077446 <z5077446@cse.unsw.EDU.AU>
+Date:   Sun Sep 18 21:17:48 2016 +1000
+
+    18/09/2016 15:00 - 21:15 coding - Added Indent Variable and if statements to handle variables and print statements containing variables - note subset 2 ex 4 still fails
+
+commit 3b44ca58f7ac08c0ccb5d7dbe7b9b006dae55e05
+Author: z5077446 <z5077446@cse.unsw.EDU.AU>
+Date:   Sun Sep 18 21:13:03 2016 +1000
+
+    Added if statements to handle variables and print statements containing variables - note subset 2 ex 4 still fails
+
+commit cf0b6b7ba327c3dcda404ac1556bc8d3a1061f54
+Author: z5077446 <z5077446@cse.unsw.EDU.AU>
+Date:   Sun Sep 11 12:05:59 2016 +1000
+
+    Paul Walters' first checkin
+
+commit 0c7f58f3d4daff2b7035a173fec8d4751edcb0c2
+Author: Andrew taylor <andrewt@cse.usnw.edu.au>
+Date:   Sat Sep 3 18:16:15 2016 +1000
+
+    files supplied to start the assignment
