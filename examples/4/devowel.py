@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3.5 -u
-import fileinput
-import re
+import fileinput, re
+
 for line in fileinput.input():
   line = line.rstrip()
   line = re.sub(r'[aeiou]','',line)
-  print(("%s" % (line)))
+  print(line)

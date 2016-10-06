@@ -345,7 +345,7 @@ sub nonterminals_join
 sub nonterminals_variable_assignment
 {
   my ($line) = @_;
-  if (@items = $line =~ /^(my|local|state)?([^=]+)=([^;]+);?$/)
+  if (@items = $line =~ /^(my|local|state)?([\$@%][A-Za-z][a-zA-Z0-9_]*)\s*=([^;]+);?$/)
   {
     my ($a,$b) = map {plpy_engine::iterate_trans_functions($_)} ($2,$3);
     return "$a = $b";
@@ -356,13 +356,12 @@ sub nonterminals_variable_assignment
 # Comparison Operators
 sub nonterminals_comp_eq
 {
-
   my ($line) = @_;
   return $line if($line =~ /STDIN/);
-  if (my @items = $line =~ /^(.+)(==|!=|>=|<=|\+=|-=)(.+)$/)
+  if (my @items = $line =~ /^(.+)(==|!=|>=|<=|\+=|-=)([^;]+);?$/)
   {
     my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
-    return join('',@output);
+    return join(' ',@output);
   }
   return $line;
 }
@@ -376,7 +375,7 @@ sub nonterminals_comp_exp
   if (my @items = $line =~ /^(.+)(<|>)(.+)$/)
   {
     my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
-    return join('',@output);
+    return join(' ',@output);
   }
   return $line;
 }
@@ -388,7 +387,7 @@ sub nonterminals_bitwise_exp
   if (my @items = $line =~ /^(.+)(&|\||~|\^|>>|<<)(.+)$/)
   {
     my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
-    return join('',@output);
+    return join(' ',@output);
   }
   return $line;
 }
@@ -396,7 +395,7 @@ sub nonterminals_bitwise_exp
 sub nonterminals_stringarith_exp
 {
   my ($line) = @_;
-  if (my @items = $line =~ /^(.+)(\.|.=)(.+)$/)
+  if (my @items = $line =~ /^(.+)(\.[^=]|\.\=)([^;]+);?$/) #The [^;]+ part was a hack to make the regex work. Apologies for that.
   {
     my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
     return join('',@output);
@@ -410,9 +409,23 @@ sub nonterminals_string_equiv_exp
   if (my @items = $line =~ /^(.+)\s+(eq|ne|lt|gt)\s+(.+)$/)
   {
     my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
-    return join('',@output);
+    return join(' ',@output);
   }
   return $line;
+}
+
+# Contains support for basic logical operators
+sub nonterminals_and_or
+{
+  my ($line) = @_;
+  if (my @items = $line =~ /^(.+)\s+(and|or|\|\||&&)\s+(.+)$/)
+  {
+
+    my @output = map {plpy_engine::iterate_trans_functions($_)} @items;
+    return join(' ',@output);
+  }
+  return $line;
+
 }
 
 # Contains support for basic arithmetic expressions
@@ -436,9 +449,9 @@ sub nonterminals_paranthesis
   my ($line) = @_;
   if ($line =~ /^\((.*)\)$/)
   {
-    my $trans = plpy_engine::iterate_trans_functions($1);
+    my $output = plpy_engine::iterate_trans_functions($1);
 
-    return "($trans)";
+    return "($output)";
   }
   return $line;
 }
@@ -458,7 +471,7 @@ sub nonterminals_not
 sub nonterminals_chomp
 {
   my ($line) = @_;
-  if ($line =~ /^chomp\s*\(?([^;]*)\)?;?$/)
+  if ($line =~ /^chomp\s*\(?([^;\)]*)\)?;?$/)
   {
     my $string = plpy_engine::iterate_trans_functions($1);
     return "$string = $string.rstrip()";
@@ -534,7 +547,7 @@ sub nonterminals_for
 
 
 # For x++ and x--. Note that ++x and --x dont exist in Python
-# thus these have bene treated like x++ and x--.
+# thus these have been treated like x++ and x--.
 sub nonterminals_increment_decrement
 {
   my ($line) = @_;

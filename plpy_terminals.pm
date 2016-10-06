@@ -139,6 +139,24 @@ sub terminals_regex_comp_operator
   return $line;
 }
 
+sub terminals_and_or
+{
+  my ($line) = @_;
+  if ($line =~ /^(and|or)$/)
+  {
+    return "$line ";
+  }
+  elsif ($line eq "&&")
+  {
+    return "and";
+  }
+  elsif ($line eq "||")
+  {
+    return "or";
+  }
+  return $line;
+}
+
 sub terminals_comp_operator
 {
   my ($line) = @_;

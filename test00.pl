@@ -3,12 +3,12 @@
 
 #test001.pl. Created by Paul Walters z5077446
 
-use strict;
-use warnings;
-use diagnostics;
+#use strict;
+#use warnings;
+#use diagnostics;
 
-my $x = 10;
-my $i = 5.4 + $x - 1;
-my $j = 12;
-my $k = $i + $j;
+$x = 10;
+$i = 5.4 + $x - 1;
+$j = 12;
+$k = $i + $j;
 print "$i plus $j equals $k\n";

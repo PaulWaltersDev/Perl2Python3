@@ -10,11 +10,9 @@ use diagnostics;
 $total = 0;
 $total_string = "";
 
-while($i = <STDIN>)
-{
+while($i = <STDIN>){
   chomp($i);
-  if($i eq "x")
-  {
+  if($i eq "x"){
     last;
   }
   $total += $i;

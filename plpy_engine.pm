@@ -29,14 +29,13 @@ my @terminals_list = (
                         \&plpy_terminals::terminals_float,
                         \&plpy_terminals::terminals_variable,
                         \&plpy_terminals::terminals_whitespace,
-                        \&plpy_terminals::terminals_or,
-                        \&plpy_terminals::terminals_and,
                         \&plpy_terminals::terminals_regex_comp_operator,
                         \&plpy_terminals::terminals_arithmetic_operator,
                         \&plpy_terminals::terminals_bitwise_operator,
                         \&plpy_terminals::terminals_end_semicolon,
                         \&plpy_terminals::terminals_next,
                         \&plpy_terminals::terminals_last,
+			\&plpy_terminals::terminals_and_or,
                         \&plpy_terminals::terminals_comp_operator,
                         \&plpy_terminals::terminals_stringarith_exp
 );
@@ -69,6 +68,7 @@ my @nonterminals_list = (
                         \&plpy_nonterminals::nonterminals_comp_eq,
                         \&plpy_nonterminals::nonterminals_comp_exp,
                         \&plpy_nonterminals::nonterminals_variable_assignment,
+			\&plpy_nonterminals::nonterminals_and_or,
                         \&plpy_nonterminals::nonterminals_bitwise_exp,
                         \&plpy_nonterminals::nonterminals_arith_exp,
                         \&plpy_nonterminals::nonterminals_stringarith_exp,
@@ -135,6 +135,8 @@ sub iterate_trans_functions
   $line =~ s/^\s+//g;   #Removes leading and trailing whitespace
   $line =~ s/\s+$//g;
 
+  #print "line = ..$line..\n";
+
   foreach $trans_func(@terminals_list)
   {
     my $newline = &$trans_func($line);
@@ -161,10 +163,12 @@ sub iterate_trans_functions
     {
       $newline =~ s/^\s+//g;
       $newline =~ s/\s+$//g;
+      #print "newline = ..$newline..\n";
       return $newline;
     }
   }
 
+  #print "unrecognised = ..$newline..\n";
   set_unrecognised();
 
   return $line;
